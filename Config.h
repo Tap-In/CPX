@@ -17,6 +17,7 @@ void readConfigFromProm() ;
 //////////////////////////////////////////////////////////////////
 
 #define temp      PSTR("{\"map\":{\"value\":\"%s\"},\"globals\":[]}")
+#define tempq      PSTR("{\"map\":{\"value\":%s},\"globals\":[]}")
 #define iprint    PSTR("{\"iprint\":\"%s\"}")
 #define tempn     PSTR("{\"map\":{\"value\":%d},\"globals\":[]}")
 #define err       PSTR("{\"map\":{\"error\":true,\"value\":\"%s\"},\"globals\":[]}")
