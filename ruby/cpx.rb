@@ -48,7 +48,7 @@ class CPX
 		res = Net::HTTP.start(@uri.host, @uri.port) do |http|
  			http.request req
 		end
-		#puts res.body
+		@y = res.body
 	end
 	
 #
@@ -65,7 +65,7 @@ class CPX
 		res = Net::HTTP.start(@uri.host, @uri.port) do |http|
  			http.request req
 		end
-		puts res.body
+		@y = res.body
 	end
 
 #
@@ -182,6 +182,9 @@ class CPX
 		@y = { "proxy-command" => "listdevices"};
 	end
 	
+#
+# Call a C function
+#
 	def call(function,param)
 		m = {"command" => "call",  "function" => function, "param" => param};
 		if label != nil
@@ -226,6 +229,39 @@ class CPX
 #
 	def testR(label,where, op, value)
 		m = {"command" => "testR",  "where" => where, "op" => op, "value" => value};
+		if label != nil
+			m.store(:label,label) 
+		end
+		@y = m
+	end
+
+#
+# Redis get
+#
+	def redisGet(label,key,wait)
+		m = {"command" => "redis-get",  "key" => key, "wait" => wait};
+		if label != nil
+			m.store(:label,label) 
+		end
+		@y = m
+	end
+
+#
+# Redis set
+#
+	def redisSet(label,key,value,wait)
+		m = {"command" => "redis-set",  "key" => key, "value" => value,  "wait" => wait};
+		if label != nil
+			m.store(:label,label) 
+		end
+		@y = m
+	end
+
+#
+# Redis set
+#
+	def redisPub(label,chan,msg,wait)
+		m = {"command" => "redis-pub",  "channel" => chan, "message" => msg,  "wait" => wait};
 		if label != nil
 			m.store(:label,label) 
 		end
@@ -290,8 +326,8 @@ class CPX
   		@y= {"command" => "call",  "function" => name, "param" => param};
 	end
 	
-	def checkCallback() 
-		@y = {"proxy-command" => "callback"};
+	def checkCallBack() 
+		@y = {"proxy-command" => "check-callback"};
 	end
 	
 	def shift(command,name)

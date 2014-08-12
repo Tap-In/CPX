@@ -227,7 +227,8 @@ void gotox(char* returns, JsonHashTable json, char* text) {
     }
     sprintf_P(returns,temp,"ok");
   }
-  
+
+
 /**
   * Embedded print, prints on the USB console, not interpreted
   * as a serial command to the host proxy.
@@ -237,6 +238,45 @@ void printx(char* returns, JsonHashTable json, char* text) {
   Serial.println("READY");
   sprintf_P(returns,iprint,value);
   Serial.println("DONE");
+}
+
+
+/**
+  * Test Last operation's value. Tests 'R' against the value you
+  * give it to work with. If the operation is true the where is jumped
+  * to
+  */
+void testR(char* returns, JsonHashTable json, char* text) {
+  int v1, v2;
+  char* label = json.getString("where");
+  char* op = json.getString("op");
+  int value = json.getLong("value");
+  int truth = 0;
+  text[0] = 0;
+  if (strcmp(op,"lt")==0) {
+	if (R < value)
+	   truth = 1;
+  } else
+  if (strcmp(op,"le")==0) {
+	if (R <= value)
+           truth = 1;
+  } else
+  if (strcmp(op,"eq")==0) {
+        if (R == value)
+	   truth = 1;
+  } else
+  if (strcmp(op,"gt")==0) {
+	if (R > value)
+           truth = 1;
+  } else
+  if (strcmp(op,"ge")==0) {
+       if (R >= value)
+           truth = 1;
+  } 
+  if (truth == 1) {
+      strcpy(text,label);
+  }
+  sprintf_P(returns,temp,"ok");
 }
 
 /**
@@ -378,6 +418,103 @@ int getSize(int type) {
   }
   return -1;
 }
+
+///////////////////////////////////////////////////////////
+
+void redisSet(char* returns, JsonHashTable json, char* text) { 
+Serial.println("REDIS SET!");
+   char rc[512];
+   char* key = json.getString("key");
+   char* value = json.getString("value");
+   long wait = json.getLong("wait");
+   doRedisSet(rc,key,value,wait);
+   sprintf_P(returns,tempq,rc);
+   Serial.print("REDIS SET RETURNS "); Serial.println(returns);
+}
+
+char* doRedisSet(char* returns, char* key, char* value, long wait) {
+  char* buf = (char*)malloc(sizeof(char)*1024);
+  char swait[16];
+  sprintf(swait,"%d",wait);
+  strcpy(buf,"{\"map\":{\"command\":\"redis-set\",\"key\":\"");
+  strcat(buf,key);
+  strcat(buf,"\",\"value\":\"");
+  strcat(buf,value);
+  strcat(buf,"\"}}");
+  char* send = encode(buf);
+  Serial.print("REDIS OUTGOING: "); Serial.println(send);
+  transmit(send);
+  free(send);
+  free(buf);
+  char *json = readBlock();
+  strcpy(returns,json);
+  free(json);
+}
+
+//////////////////////////////////////////////////////////////
+
+void redisGet(char* returns, JsonHashTable json, char* text) { 
+Serial.println("REDIS GET!");
+   char rc[512];
+   char* key = json.getString("key");
+   long wait = json.getLong("wait");
+   doRedisGet(rc,key,wait);
+   sprintf_P(returns,tempq,rc);
+   Serial.print("REDIS GET RETURNS "); Serial.println(returns);
+}
+
+char* doRedisGet(char* returns, char* key,long wait) {
+  char* buf = (char*)malloc(sizeof(char)*1024);
+  char swait[16];
+  sprintf(swait,"%d",wait);
+  strcpy(buf,"{\"map\":{\"command\":\"redis-get\",\"key\":\"");
+  strcat(buf,key);
+  strcat(buf,"\"}}");
+  char* send = encode(buf);
+  Serial.print("REDIS OUTGOING: "); Serial.println(send);
+  transmit(send);
+  free(send);
+  free(buf);
+  char *json = readBlock();
+  strcpy(returns,json);
+  free(json);
+}
+
+//////////////////////////////////////////////////////////////
+
+void redisPub(char* returns, JsonHashTable json, char* text) { 
+Serial.println("REDIS PUB!");
+   char rc[512];
+   char* key = json.getString("channel");
+   char* msg = json.getString("message");
+   long wait = json.getLong("wait");
+   doRedisPub(rc,key,msg,wait);
+   sprintf_P(returns,tempq,rc);
+   Serial.print("REDIS PUB RETURNS "); Serial.println(returns);
+}
+
+char* doRedisPub(char* returns, char* key,char*msg, long wait) {
+  char* buf = (char*)malloc(sizeof(char)*1024);
+  char swait[16];
+  sprintf(swait,"%d",wait);
+  strcpy(buf,"{\"map\":{\"command\":\"redis-pub\",\"channel\":\"");
+  strcat(buf,key);
+  strcat(buf,"\",\"message\":\"");
+  strcat(buf,msg);
+  strcat(buf,"\"}}");
+  char* send = encode(buf);
+  Serial.print("REDIS OUTGOING: "); Serial.println(send);
+  transmit(send);
+  free(send);
+  free(buf);
+  char *json = readBlock();
+  strcpy(returns,json);
+  free(json);
+}
+
+//////////////////////////////////////////////////////////////
+/**
+
 
 /**
   * Set the arduino memory at a certain address to a list

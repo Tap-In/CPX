@@ -3,7 +3,7 @@ require './config.rb'
 
 # LED at pin 6 blinks. When A15 (69) read is not 0 LED at 6 is turned off
 
-c = CPX.new("http://arduinoproxy.tapinsystems.net:8085/cpx",@user,@deviceid);
+c = CPX.new(@host,@user,@deviceid);
 commands = []
 commands << c.digitalWrite("loop",6,1)
 commands << c.digitalRead(nil,69)

@@ -33,9 +33,9 @@
 int INTERFACE_TYPE  =       WIFI;
 
 // If proxy these will be ignored
-#define CONTROL_PLAN_ADDR    "arduinoproxy.tapinsystems.net"
+//#define CONTROL_PLAN_ADDR    "arduinoproxy.tapinsystems.net"
 //#define CONTROL_PLAN_ADDR   "192.168.1.15"
-//#define CONTROL_PLAN_ADDR   "192.168.1.3"
+#define CONTROL_PLAN_ADDR   "192.168.1.3"
 #define CONTROL_PLAN_PORT    6666
 ////////////////////////////////////////////////////////////////
 
@@ -103,6 +103,10 @@ void injectKeyWords() {
   List_push(keywords,initKey((char*)"seteeprom",&seteeprom));
   List_push(keywords,initKey((char*)"geteeprom",&geteeprom));
   List_push(keywords,initKey((char*)"send-callback", &callback));
+  List_push(keywords,initKey((char*)"testR", &testR));
+  List_push(keywords,initKey((char*)"redis-set", &redisSet));
+  List_push(keywords,initKey((char*)"redis-get", &redisGet));
+  List_push(keywords,initKey((char*)"redis-pub", &redisPub));
 }
 
 void CPXaddFunction(char* name, int (*functionPtr)(char*,char*)) {
