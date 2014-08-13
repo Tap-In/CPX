@@ -272,6 +272,8 @@ void CPXloop() {
     return;
   }
 
+  // Serial.print("GOT COMMANDS: "); Serial.println(json);
+
   JsonHashTable hashTable = parser.parseHashTable(json);
   hashTable = hashTable.getHashTable("map");
   JsonArray commands = hashTable.getArray("commands");

@@ -288,14 +288,16 @@ void call(char* returns, JsonHashTable json, char* text) {
   int v1, v2;
   char* fname = json.getString("function");
   char* param = json.getString("param");
-  callTYPE* call;
-  findFunction(fname,call);
-  if (call == NULL)
-      sprintf(returns,err,fname);
+  callTYPE* call = findFunction(fname);
+  if (call == NULL) {
+      sprintf(returns,err,fname);          // TBD sends crap
+  }
   else {
     char rval[128];
+    Serial.println("CALLING");
     int rc = call->functionPtr(rval,param);
-      sprintf(returns,"{\"map\":{\"value\":\"%s\",\"rc\":%d},\"globals\":[]}",rval,rc);
+    sprintf(returns,"{\"map\":{\"value\":\"%s\",\"rc\":%d},\"globals\":[]}",rval,rc);
+    Serial.print("RETURNED "); Serial.println(rc);
     }
   }
   
@@ -569,16 +571,16 @@ int findSymbol(char* name) {
 /*
  * Call an internal function by name, the 'call' method
  */
-void findFunction(char* name, callTYPE* call) {
-  call = NULL;
+callTYPE* findFunction(char* name) {
+
   for (int i = 0; i < List_size(functions); i++) {
     callTYPE* key = (callTYPE*)List_query(functions, i);
     if (strcmp(key->name, name) == 0)
     {
-     call = key;
-     return;
+     return key;
     }
   }
+  return NULL;
 }
 
 /*

@@ -49,13 +49,10 @@ void seteeprom(char* returns, JsonHashTable json, char* text);
 void geteeprom(char* returns, JsonHashTable json, char* text);
 void callback(char* returns, JsonHashTable json, char* text);
 void testR(char* returns, JsonHashTable json, char* text);
-void redisSet(char* returns, JsonHashTable json, char* text);
-void redisGet(char* returns, JsonHashTable json, char* text);
-void redisPub(char* returns, JsonHashTable json, char* text);
+void redis(char* returns, JsonHashTable json, char* text);
 
-char* doRedisPub(char* returns, char* channel, char* message, long wait);
-char* doRedisSet(char* returns, char* key, char* value, long wait);
-char* doRedisGet(char* returns, char* key, long wait);
+char* doRedis(char* returns, char* subcmd, char* key, char* value, long wait);
+
 void sendCPmessage(char* user, char* plan, char* args, char* endpoint, char* returns, int wait);
 int getJumpCount(char* label);
 
