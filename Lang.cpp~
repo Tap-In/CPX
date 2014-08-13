@@ -227,7 +227,8 @@ void gotox(char* returns, JsonHashTable json, char* text) {
     }
     sprintf_P(returns,temp,"ok");
   }
-  
+
+
 /**
   * Embedded print, prints on the USB console, not interpreted
   * as a serial command to the host proxy.
@@ -237,6 +238,45 @@ void printx(char* returns, JsonHashTable json, char* text) {
   Serial.println("READY");
   sprintf_P(returns,iprint,value);
   Serial.println("DONE");
+}
+
+
+/**
+  * Test Last operation's value. Tests 'R' against the value you
+  * give it to work with. If the operation is true the where is jumped
+  * to
+  */
+void testR(char* returns, JsonHashTable json, char* text) {
+  int v1, v2;
+  char* label = json.getString("where");
+  char* op = json.getString("op");
+  int value = json.getLong("value");
+  int truth = 0;
+  text[0] = 0;
+  if (strcmp(op,"lt")==0) {
+	if (R < value)
+	   truth = 1;
+  } else
+  if (strcmp(op,"le")==0) {
+	if (R <= value)
+           truth = 1;
+  } else
+  if (strcmp(op,"eq")==0) {
+        if (R == value)
+	   truth = 1;
+  } else
+  if (strcmp(op,"gt")==0) {
+	if (R > value)
+           truth = 1;
+  } else
+  if (strcmp(op,"ge")==0) {
+       if (R >= value)
+           truth = 1;
+  } 
+  if (truth == 1) {
+      strcpy(text,label);
+  }
+  sprintf_P(returns,temp,"ok");
 }
 
 /**
@@ -274,6 +314,7 @@ void sendCPmessage(char* user, char* plan, char* args, char* endpoint, char* ret
   strcat(buf,user);
   strcat(buf,"\",\"plan\":\"");
   strcat(buf,plan);
+  strcat(buf,"\"");
 
   if (!(args == NULL || strlen(args)==0)) {
   	strcat(buf,"\",\"args\":");
@@ -377,6 +418,68 @@ int getSize(int type) {
   }
   return -1;
 }
+
+///////////////////////////////////////////////////////////
+
+void redis(char* returns, JsonHashTable json, char* text) { 
+Serial.println("REDIS COMMAND");
+   char rc[512];
+   char* subcmd = json.getString("subcommand");
+   char* key = json.getString("key");
+   char* value = json.getString("value");
+   long wait = json.getLong("wait");
+   doRedis(rc,subcmd,key,value,wait);
+   sprintf_P(returns,tempq,rc);
+   Serial.print("REDIS RETURNS "); Serial.println(returns);
+}
+
+void createString(char* buf, char* one, char *two) {
+  if (two == NULL)
+	return;
+  if (one == NULL) {
+	strcat(buf,two);
+ 	return;
+  }
+  strcat(buf,"\"");
+  strcat(buf,one);
+  strcat(buf,"\":\"");
+  strcat(buf,two);
+  strcat(buf,"\"");
+}
+
+char* doRedis(char* returns, char* subcmd, char* key, char* value, long wait) {
+  char* buf = (char*)malloc(sizeof(char)*1024);
+  char swait[16];
+  sprintf(swait,"%d",wait);
+  
+  buf[0] = 0;
+  createString(buf,NULL,"{\"map\":{");
+  createString(buf,"command","redis");
+  strcat(buf,",");
+  createString(buf,"subcommand",subcmd);
+  strcat(buf,",");
+  if (strcmp(subcmd,"pub")==0) {
+    createString(buf,"channel",key);
+    strcat(buf,",");
+    createString(buf,"message",value);
+  } else {
+    createString(buf,"key",key);
+    if (value != NULL) strcat(buf,",");
+    createString(buf,"value",value);
+  }
+  createString(buf,NULL,"}}");
+
+  char* send = encode(buf);
+  Serial.print("REDIS OUTGOING: "); Serial.println(send);
+  transmit(send);
+  free(send);
+  free(buf);
+  char *json = readBlock();
+  strcpy(returns,json);
+  free(json);
+}
+
+//////////////////////////////////////////////////////////////
 
 /**
   * Set the arduino memory at a certain address to a list

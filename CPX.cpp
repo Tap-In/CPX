@@ -104,9 +104,7 @@ void injectKeyWords() {
   List_push(keywords,initKey((char*)"geteeprom",&geteeprom));
   List_push(keywords,initKey((char*)"send-callback", &callback));
   List_push(keywords,initKey((char*)"testR", &testR));
-  List_push(keywords,initKey((char*)"redis-set", &redisSet));
-  List_push(keywords,initKey((char*)"redis-get", &redisGet));
-  List_push(keywords,initKey((char*)"redis-pub", &redisPub));
+  List_push(keywords,initKey((char*)"redis", &redis));
 }
 
 void CPXaddFunction(char* name, int (*functionPtr)(char*,char*)) {

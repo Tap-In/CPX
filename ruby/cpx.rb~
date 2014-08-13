@@ -239,7 +239,7 @@ class CPX
 # Redis get
 #
 	def redisGet(label,key,wait)
-		m = {"command" => "redis",  "subcommand" => "get",  "key" => key, "wait" => wait};
+		m = {"command" => "redis-get",  "key" => key, "wait" => wait};
 		if label != nil
 			m.store(:label,label) 
 		end
@@ -250,7 +250,7 @@ class CPX
 # Redis set
 #
 	def redisSet(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "set",  "key" => key, "value" => value,  "wait" => wait};
+		m = {"command" => "redis-set",  "key" => key, "value" => value,  "wait" => wait};
 		if label != nil
 			m.store(:label,label) 
 		end
@@ -261,100 +261,13 @@ class CPX
 # Redis set
 #
 	def redisPub(label,chan,msg,wait)
-		m = {"command" => "redis", "subcommand" => "pub",  "channel" => chan, "message" => msg,  "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
-#
-# Redis incrBy
-#
-	def redisSet(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "incrby",  "key" => key, "value" => value,  "wait" => wait};
+		m = {"command" => "redis-pub",  "channel" => chan, "message" => msg,  "wait" => wait};
 		if label != nil
 			m.store(:label,label) 
 		end
 		@y = m
 	end
 	
-#
-# Redis Del
-#
-	def redisDel(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "set",  "key" => key, "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
-#
-# Redis exists
-#
-	def redisExists(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "exists",  "key" => key, "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-#
-# Redis expire
-#
-	def redisExpire(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "expire",  "key" => key, "value" => value,  "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
-#
-# Redis rpush
-#
-	def redisRpush(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "rpush",  "key" => key, "value" => value,  "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
-#
-# Redis lpush
-#
-	def redisLpush(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "lpush",  "key" => key, "value" => value,  "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
-#
-# Redis rpop
-#
-	def redisRpop(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "rpop",  "key" => key, "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
-#
-# Redis lpop
-#
-	def redisLpop(label,key,value,wait)
-		m = {"command" => "redis", "subcommand" => "lpop",  "key" => key, "wait" => wait};
-		if label != nil
-			m.store(:label,label) 
-		end
-		@y = m
-	end
-
 #
 # Allocate memory in the device
 # label = the label or nil
