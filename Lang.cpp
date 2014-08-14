@@ -273,6 +273,11 @@ void testR(char* returns, JsonHashTable json, char* text) {
        if (R >= value)
            truth = 1;
   } 
+  else
+  if (strcmp(op,"ne")==0) {
+       if (R != value)
+           truth = 1;
+  } 
   if (truth == 1) {
       strcpy(text,label);
   }

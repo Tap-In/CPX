@@ -288,11 +288,9 @@ void call(char* returns, JsonHashTable json, char* text) {
   int v1, v2;
   char* fname = json.getString("function");
   char* param = json.getString("param");
-Serial.print("Looking for: "); Serial.println(fname);
   callTYPE* call = findFunction(fname);
   if (call == NULL) {
-Serial.println("NOT FOUND!!!!");
-      sprintf(returns,err,fname);
+      sprintf(returns,err,fname);          // TBD sends crap
   }
   else {
     char rval[128];
@@ -577,10 +575,8 @@ callTYPE* findFunction(char* name) {
 
   for (int i = 0; i < List_size(functions); i++) {
     callTYPE* key = (callTYPE*)List_query(functions, i);
-Serial.print("CHECKING: "); Serial.print(key->name); Serial.print(" vs "); Serial.println(name);
     if (strcmp(key->name, name) == 0)
     {
-Serial.println("Got a match");
      return key;
     }
   }
