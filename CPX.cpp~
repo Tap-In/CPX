@@ -40,7 +40,7 @@ int INTERFACE_TYPE  =       WIFI;
 ////////////////////////////////////////////////////////////////
 
 #define WLAN_SECURITY        WLAN_SEC_WPA2
-char USER[32] =               {"ploh@tapinsystems.com"};
+char USER[32] =               {"BEN"};
 char ID[32]   =               {"5551212"};
 char WLAN_SSID[32] =          {"SuperiorCourtData"};
 char WLAN_PASS[32]  =         {"jiujitsu"};

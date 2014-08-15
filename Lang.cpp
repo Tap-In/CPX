@@ -705,7 +705,8 @@ void transmit(char* buf) {
    if (interface == PROXY) {
      Serial.print(buf);
    } else {
-     char lbuf[4];
+     char lbuf[5];
+     lbuf[4] = 0;
      strncpy(lbuf,buf,4);
      client.fastrprint(lbuf);
      delay(100);
