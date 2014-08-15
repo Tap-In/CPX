@@ -1,8 +1,7 @@
 void CPXloop();
 void CPXsetup();
-void CPXaddFunction(int (*functionPtr)(const char*,char*));
+void CPXaddFunction(char* name, int (*functionPtr)(char*,char*));
 void sendPing();
 void CPXerrorPin(int);
 void CPXokPin(int);
 int CPXconnected();
-void CPXuserLoop(void (*functionPtr)());

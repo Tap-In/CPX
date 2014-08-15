@@ -35,8 +35,6 @@ int IOTautonomous(char* rets, char* param);
 IOTstatus(char* rets, char* params);
 int IOToff(char* rets, char* params);
 
-int userLoop(char* rets, char* params);
-
 double readTemperature();
 long timeBase;
 
@@ -77,7 +75,7 @@ void loop() {
 }
 
 
-void autonomous(int targetTemp) {
+void autonomous(int target) {
   double temperature;
   char status[512];
   IOTstatus(char* rets, NULL);

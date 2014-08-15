@@ -74,7 +74,6 @@ void doWiFi();
 bool displayConnectionDetails(void);
 void doCommand(char* returns, JsonHashTable json, char* label);
 void sendPing();
-callTYPE* userLoop = NULL;
 
 void construct(char*,char*[]);
 uint32_t getIp(char *address) ;
@@ -130,19 +129,11 @@ void CPXsetup() {
   injectKeyWords();
   readConfigFromProm();
   lastTime = millis();
-  userLoop = findFunction("userLoop");
   doWiFi();
  
 /************************************************************/
  if (interface == WIFI) {
      Serial.println("CPX .1 started");
- /*    char buf[128];
-     sprintf(buf,"{\"map\":{\"user\":\"%s\",\"id\":\"%s\"}}",USER,ID);
-     //construct(returns,values);
-     char *send = encode(buf);
-     Serial.println(send);
-     transmit(send);
-     free(send); */
   } else {
     sprintf_P(returns,iprint,"CPX .1 started");
     char *send = encode(returns);
@@ -161,6 +152,18 @@ void CPXerrorPin(int pin) {
 
 void CPXokPin(int pin) {
   okPin = pin;
+}
+
+void CPXprint(char* what) {
+  char returns[1024];
+  if (interface == WIFI)
+    Serial.println(what);
+  else {
+    sprintf_P(returns,iprint,what);
+    char *send = encode(returns);
+    Serial.write(send);
+    free(send);
+  }
 }
 
 void construct(char* returns,char *vals[]) {
@@ -228,7 +231,7 @@ void connectToProxy() {
 
       return;
     }
-Serial.println("Waiting for retry");
+    Serial.println("Waiting for retry");
     delay(5000);
   }
 }
@@ -254,6 +257,17 @@ bool displayConnectionDetails(void)
   }
 }
 
+int dataReady() {
+     if (interface == WIFI) 
+	if( client.connected() && !client.available())
+        	return true;
+	else
+		return false;
+     }
+     if (Serial.available())
+	return true;
+}
+
 /*
  * Read commands from Control Plan
  */
@@ -264,6 +278,9 @@ void CPXloop() {
   char label[32];
   int v1, v2, pc;
   nJumps = 0;
+  if (!dataReady())
+	return;
+	
   json = readBlock();
   lastTime = millis();
   if (json == NULL) {

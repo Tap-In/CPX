@@ -624,10 +624,7 @@ char* readBlock() {
     } else {
      int z = 0;
      while(client.connected() && !client.available()) {
-         if (z++ > 1000) {
-           z = 0;
           sendPing();client.write("!",1);
-    }
      }
      if (!client.connected()) {
          Serial.println("Host has disconnected");
