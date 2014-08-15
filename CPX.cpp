@@ -74,6 +74,7 @@ void doWiFi();
 bool displayConnectionDetails(void);
 void doCommand(char* returns, JsonHashTable json, char* label);
 void sendPing();
+callTYPE* userLoop = NULL;
 
 void construct(char*,char*[]);
 uint32_t getIp(char *address) ;
@@ -129,7 +130,7 @@ void CPXsetup() {
   injectKeyWords();
   readConfigFromProm();
   lastTime = millis();
- 
+  userLoop = findFunction("userLoop");
   doWiFi();
  
 /************************************************************/
@@ -227,7 +228,7 @@ void connectToProxy() {
 
       return;
     }
-Serial.println("Waiting for retry");
+    Serial.println("Waiting for retry");
     delay(5000);
   }
 }

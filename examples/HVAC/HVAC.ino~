@@ -50,9 +50,7 @@ void setup() {
   pinMode(HEAT,OUTPUT);
   pinMode(COOL,OUTPUT);
   pinMode(FAN,OUTPUT);
-  manual = false;
   off();
-  timeBase = millis();
   
   CPXaddFunction("IOTsystem",&IOTsystem);			// used to operate fan, cooling, heating from across the network
   CPXaddFunction("IOTReadTemperature",&IOTreadTemperature);	// used to get the temperature from across the network
@@ -72,12 +70,14 @@ void setup() {
   * Autonomously run and control system at 72 degrees fahrenheit
   */
 void loop() {
+  manual = false;
+  off();
+  timeBase = millis();
   CPXloop();
-  autonomous(72);
 }
 
 
-void autonomous(int targetTemp) {
+void userLoop() {
   double temperature;
   char status[512];
   IOTstatus(char* rets, NULL);

@@ -81,6 +81,7 @@ void trigger(char* returns, JsonHashTable json, char* text) {
         sprintf_P(returns,tempn,-1);
         return;
     }
+    sendPing();
   }
   value = millis() - value;
   R = value;
@@ -706,7 +707,7 @@ void transmit(char* buf) {
      Serial.print(buf);
    } else {
      char lbuf[5];
-     lbuf[0] = 0;
+     lbuf[4] = 0;
      strncpy(lbuf,buf,4);
      client.fastrprint(lbuf);
      delay(100);

@@ -79,8 +79,10 @@ void trigger(char* returns, JsonHashTable json, char* text) {
     delay(100);
     if (to > 0 &&( to < millis() - value)) {
         sprintf_P(returns,tempn,-1);
+        R = -1;
         return;
     }
+    sendPing();
   }
   value = millis() - value;
   R = value;
