@@ -624,11 +624,11 @@ char* readBlock() {
     } else {
      int z = 0;
      while(client.connected() && !client.available()) {
-          sendPing();client.write("!",1);
+          sendPing();
      }
      if (!client.connected()) {
          Serial.println("Host has disconnected");
-delay(250);
+	 delay(250);
          return NULL;	
          //blink(errorPin,250,0);
      }

@@ -258,7 +258,7 @@ bool displayConnectionDetails(void)
 }
 
 int dataReady() {
-     if (interface == WIFI) 
+     if (interface == WIFI) {
 	if( client.connected() && !client.available())
         	return true;
 	else

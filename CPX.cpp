@@ -278,8 +278,8 @@ void CPXloop() {
   char label[32];
   int v1, v2, pc;
   nJumps = 0;
-  if (!dataReady())
-	return;
+  //if (!dataReady())
+//	return;
 	
   json = readBlock();
   lastTime = millis();
