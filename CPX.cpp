@@ -257,9 +257,13 @@ bool displayConnectionDetails(void)
   }
 }
 
+/**
+  * Is data ready? CPXloop will use this to make sure it doesn't block if
+  * no data is available.
+  */
 int dataReady() {
      if (interface == WIFI) {
-	if( client.connected() && !client.available())
+	if( client.connected() && client.available())
         	return true;
 	else
 		return false;
@@ -278,8 +282,8 @@ void CPXloop() {
   char label[32];
   int v1, v2, pc;
   nJumps = 0;
-  //if (!dataReady())
-//	return;
+  if (!dataReady())
+	return;
 	
   json = readBlock();
   lastTime = millis();
