@@ -15,6 +15,7 @@
 #include <JsonObjectBase.h>
 #include <JsonHashTable.h>
 
+#include "CPX.h"
 #include "List.h"
 #include "Lang.h"
 #include "Hardware.h"
@@ -297,14 +298,16 @@ void call(char* returns, JsonHashTable json, char* text) {
   char* param = json.getString("param");
   callTYPE* call = findFunction(fname);
   if (call == NULL) {
+CPXprint("********* NULL *************");
       sprintf(returns,err,fname);          // TBD sends crap
   }
   else {
     char rval[128];
-    Serial.println("CALLING");
+    CPXprint("**** CALLING ***");
     int rc = call->functionPtr(rval,param);
     sprintf(returns,"{\"map\":{\"value\":\"%s\",\"rc\":%d},\"globals\":[]}",rval,rc);
-    Serial.print("RETURNED "); Serial.println(rc);
+CPXprint("*** Returning ***");
+    //Serial.print("RETURNED "); Serial.println(rc);
     }
   }
   

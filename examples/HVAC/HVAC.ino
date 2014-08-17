@@ -1,3 +1,5 @@
+
+#include <Arduino.h>
 #include <EEPROM.h>
 
 #include <SPI.h>
@@ -17,26 +19,38 @@
 #include <List.h>
 #include <Config.h>
 
-int ON   =      1;
-int OFF =       0;
-int TEMP =      A14;	    // LM36 temperature sensor, bias is 5v.
-int HEAT =      32;	    // WHITE
-int COOL =      34;	    // YELLOW
-int FAN =       36;         // GREEN
-int RED =       6;
-int GREEN =     4;
+// TEMP LM36    A14 	  
+// HEAT WHITE
+// COOL YELLOW
+// FAN  GREEN
 
-int manual = 1;
+#define ON      0
+#define OFF     1
+#define TEMP    A14 	   
+#define HEAT    32 	
+#define COOL    34 	
+#define FAN     36     
+#define RED     6
+#define GREEN   4
 
 int IOTreadTemperature(char* rets, char* param);
 int IOTsystem(char* rets, char *params);
 int IOTmanual(char* rets, char* param); 
 int IOTautonomous(char* rets, char* param);
-IOTstatus(char* rets, char* params);
+int IOTstatus(char* rets, char* params);
 int IOToff(char* rets, char* params);
 
 double readTemperature();
+double autoTemp = 72.0;
 long timeBase;
+long statusBase = 0;
+int heat, fan, cool, manual;
+
+double sims[] = {60,65,70,80};
+double lastTemperature;
+int nSims = 4;
+int simCount = 0;
+int bias = 0;
 
 /**
   * Set up the system
@@ -52,18 +66,19 @@ void setup() {
   off();
   timeBase = millis();
   
+  CPXaddFunction("IOTstatus",&IOTstatus);			// used to operate fan, cooling, heating from across the network
   CPXaddFunction("IOTsystem",&IOTsystem);			// used to operate fan, cooling, heating from across the network
   CPXaddFunction("IOTReadTemperature",&IOTreadTemperature);	// used to get the temperature from across the network
   CPXaddFunction("IOTmanual",&IOTmanual); 			// turns off autonomous operation from across the network
   CPXaddFunction("IOTautonomous",&IOTautonomous);		// turns autonomous operation on from across the network
   CPXaddFunction("IOToff",&IOToff);				// turns all controls off from across the network
   CPXaddFunction("IOToff",&IOTstatus);				// queries system status, from across the network
-
-  CPXaddUserLoop("userLoop",&userLoop);				// When CPX is not busy, it will call this, in a loop.
   
   CPXerrorPin(RED);
   CPXokPin(GREEN);
   CPXsetup();
+  CPXprint("HVAC starting...");
+  lastTemperature = readTemperature();
 }
 
 /**
@@ -71,49 +86,76 @@ void setup() {
   */
 void loop() {
   CPXloop();
-  autonomous(72);
+  autonomous();
 }
 
+/**
+  * Turn HAC off
+  */
+void off() {
+  digitalWrite(FAN,OFF);
+  digitalWrite(HEAT,OFF);
+  digitalWrite(COOL,OFF);
+  heat = fan = cool = OFF;
+  bias = 0;
+  lastTemperature = readTemperature();
+}
 
-void autonomous(int target) {
+void autonomous() {
+  long now = millis();
   double temperature;
   char status[512];
-  IOTstatus(char* rets, NULL);
-  Serial.print("*** "); Serial.println(rets);
-  if(autonomous) {
-    long now = millis();
-    if (now - timeBase < 30000)
-	return;
-
+  if (now-statusBase < 30000) 
+    return;
+  IOTstatus(status, NULL);
+  CPXprint(status);
+  statusBase = now;
+  if(!manual) {
     temperature = readTemperature();
-    if (temperature > target + 5) {
-      doCool(target - 5);
+    if (temperature > autoTemp + 5) {
+      doCool(autoTemp - 5);
     }
     else 
-    if (readTemperature() < target - 5) {
-      doHeat(target + 5);
+    if (readTemperature() < autoTemp - 5) {
+      doHeat(autoTemp + 5);
     }
-    return;
   }
+  simCount++;
+  if (simCount == nSims)
+    simCount = 0;
+  
 }
 
 /**
   * Heating and air conditioning control
   */
-void hacControl(int on, int system) {
-  char* name = "??";
+void hacControl(int mode, int system) {
+  char msg[512];
+    
   switch(system) {
-  case HEAT: name = "HEAT"; break;
-  case COOL: name = "AC"; break;
-  }
-  if (on) {
-    digitalWrite(system,ON);
-    digitalWrite(FAN,ON);
-    Serial.print("### FAN: ON, "); Serial.print(name); Serial.println(" ON");
-  } else {
-    digitalWrite(system,OFF);
-    digitalWrite(FAN,OFF);
-    Serial.print("### FAN: OFF, "); Serial.print(name); Serial.println(" OFF");
+  case HEAT:
+      if (heat == mode)
+        return;
+      heat = fan = ON;
+      cool = OFF;
+      digitalWrite(HEAT,ON);
+      digitalWrite(FAN,ON);
+      digitalWrite(COOL,OFF);
+            CPXprint("*** HEAT ON ***");
+            bias = 15;
+            delay(2000);
+      break;
+   case COOL: 
+       if (cool == mode)
+        return;
+      cool = fan = ON;
+      heat = OFF;
+      digitalWrite(HEAT,OFF);
+      digitalWrite(FAN,ON);
+      digitalWrite(COOL,ON);    
+      CPXprint("*** AC ON ***");
+      bias = 15;
+      break;
   }
 }
 
@@ -121,47 +163,21 @@ void hacControl(int on, int system) {
   * Read the temperature in degrees fahrenheit
   */
 double readTemperature() {
-  int reading = analogRead(TEMP);
+  
+ // return(sims[simCount]);
+  int reading = 0;
+  for (int i=0;i<100;i++) {
+    reading += analogRead(TEMP);
+  }
+  reading /= 100;
+  reading -= bias;
   double voltage = reading * 5.0;
   voltage /= 1024.0; 
   double temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
                                                //to degrees ((voltage - 500mV) times 100)
   // now convert to Fahrenheit
   double temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
-  return temperatureF;
-}
-
-/**
-  * Turn HAC off
-  */
-void off() {
-  analogWrite(FAN,OFF);
-  analogWrite(HEAT,OFF);
-  analogWrite(COOL,OFF);
-  Serial.println("### FAN OFF, HEAT OFF, AC OFF");
-}
-
-
-
-/**
-  * Keep the system at the target temperature.
-  */
-void autonomous(double target) {
-  double temperature;
-  manual = false;
-  off();
-  if(autonomous) {
-    temperature = readTemperature();
-    if (temperature > target + 5) {
-      doCool(target - 5);
-    }
-    else 
-    if (readTemperature() < target - 5) {
-      doHeat(target + 5);
-    }
-    sendPing();
-    delay(30000);
-  }
+  return temperatureF; 
 }
 
 /**
@@ -169,11 +185,6 @@ void autonomous(double target) {
   */
 void doCool(double target) {
   hacControl(ON,COOL);
-  double temperature = 0;
-  while(temperature = readTemperature() > target) {
-     delay(30000); 
-  }
-  off();
 }
 
 /**
@@ -181,18 +192,13 @@ void doCool(double target) {
   */
 void doHeat(double target) {
   hacControl(ON,HEAT);
-  double temperature = 0;
-  while(temperature = readTemperature() < target) {
-     delay(30000); 
-  }
-  off();
 }
 
 /**
   * Read the temperature
   */
 int IOTreadTemperature(char* rets, char* param) {
-  sprintf(rets,"%f",readTemperature());
+  dtostrf(readTemperature(),7, 3, rets);
   return 1;
 }
 
@@ -210,9 +216,20 @@ int IOTsystem(char* rets, char *params) {
   * Execute autonomously
   */
 int IOTautonomous(char* rets, char* params) {
+  manual = OFF;
   double temperature;
   sscanf(params,"%f",&temperature);
-  autonomous(temperature);
+  IOTstatus(rets,params);
+}
+
+/**
+  * Execute autonomously
+  */
+int IOTmanual(char* rets, char* params) {
+  manual = ON;
+  double temperature;
+  sscanf(params,"%f",&autoTemp);
+  autonomous();
 }
 
 /**
@@ -233,25 +250,23 @@ int IOToff(char* rets, char* params) {
   * Return system status
   */
 int IOTstatus(char* rets, char* params) {
-  double temp = getTemperature();
+  char stemp[16];
+  double temperature = lastTemperature;
+  char mstate[8];
+  char fstate[8];
+  char cstate[8];
+  char hstate[8];
+  strcpy(fstate,"OFF");
+  strcpy(cstate,"OFF");
+  strcpy(hstate,"OFF");
+  strcpy(mstate,"MANUAL");
   strcpy(rets,"Mode: ");
-  if (manual) 
-	strcat(rets,"manual ");
-  else
-   	strcat("auto ");
-  strcat(rets,"Fan: "
-  if (fan == ON)
-	strcat(rets,"on ");
-  else
-        strcat(rets,"off ");
-  if (cool == ON)
-	strcat(rets,"on ");
-  else
-        strcat(rets,"off ");
-  if (heat == ON)
-	strcat(rets,"on ");
-  else
-        strcat(rets,"off ");
-  strcat(rets,"temp: ");
-  strcat(rets,temp);
+  if (!manual) strcpy(mstate,"AUTO");
+  if (fan == ON) strcpy(fstate,"ON");
+  if (heat == ON) strcpy(hstate,"ON");
+  if (cool == ON) strcpy(cstate,"ON");
+  dtostrf(temperature,7, 3, stemp);
+  sprintf(rets,"Mode: %s, Heat: %s, Cool: %s, Fan %s, Temp: %s",
+                mstate,hstate,cstate,fstate,stemp);
 }
+

@@ -16,11 +16,11 @@ void readConfigFromProm() ;
 
 //////////////////////////////////////////////////////////////////
 
-#define temp      PSTR("{\"map\":{\"value\":\"%s\"}}")
-#define tempq      PSTR("{\"map\":{\"value\":%s}}")
+#define temp      PSTR("{\"map\":{\"value\":\"%s\"},\"globals\":[]}")
+#define tempq      PSTR("{\"map\":{\"value\":%s},\"globals\":[]}")
 #define iprint    PSTR("{\"map\":{\"command\":\"iprint\",\"value\":\"%s\"}}")
-#define tempn     PSTR("{\"map\":{\"value\":%d}}")
-#define err       PSTR("{\"map\":{\"error\":true,\"value\":\"%s\"}}")
+#define tempn     PSTR("{\"map\":{\"value\":%d},\"globals\":[]}")
+#define err       PSTR("{\"map\":{\"error\":true,\"value\":\"%s\"},\"globals\":[]}")
 
 /////////////////////////
 

@@ -1,11 +1,11 @@
-#define NAMELEN 16
+#define NAMELEN 32
 
 #define BYTE    0
 #define INT     1
 #define DOUBLE  2
 typedef struct
 {
-    char name[16];
+    char name[NAMELEN];
     void (*functionPtr)(char* returns, JsonHashTable json, char* text);
 } langTYPE;
 

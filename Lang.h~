@@ -56,7 +56,7 @@ char* doRedis(char* returns, char* subcmd, char* key, char* value, long wait);
 void sendCPmessage(char* user, char* plan, char* args, char* endpoint, char* returns, int wait);
 int getJumpCount(char* label);
 
-void findFunction(char* name, callTYPE* call);
+callTYPE* findFunction(char* name);
 
 int findIndex(char* label,JsonArray commands);
 int findSymbol(char* name);

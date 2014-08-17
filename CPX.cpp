@@ -128,6 +128,7 @@ void CPXsetup() {
   char returns[512];
   injectKeyWords();
   readConfigFromProm();
+  Serial.println("++ Post Complete ++");
   lastTime = millis();
   doWiFi();
  

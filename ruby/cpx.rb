@@ -185,7 +185,7 @@ class CPX
 #
 # Call a C function
 #
-	def call(function,param)
+	def call(label,function,param)
 		m = {"command" => "call",  "function" => function, "param" => param};
 		if label != nil
 			m.store(:label,label); 
@@ -409,8 +409,12 @@ class CPX
 		@y = m
 	end
 	
-	def call(name,param)
-  		@y= {"command" => "call",  "function" => name, "param" => param};
+	def call(label,name,param)
+  		m = {"command" => "call",  "function" => name, "param" => param};
+		if label != nil
+			m.store(:label,label); 
+		end
+		@y = m
 	end
 	
 	def checkCallBack() 

@@ -297,14 +297,16 @@ void call(char* returns, JsonHashTable json, char* text) {
   char* param = json.getString("param");
   callTYPE* call = findFunction(fname);
   if (call == NULL) {
+CPXprint("********* NULL *************");
       sprintf(returns,err,fname);          // TBD sends crap
   }
   else {
     char rval[128];
-    Serial.println("CALLING");
+    CPXprint("**** CALLING ***");
     int rc = call->functionPtr(rval,param);
     sprintf(returns,"{\"map\":{\"value\":\"%s\",\"rc\":%d},\"globals\":[]}",rval,rc);
-    Serial.print("RETURNED "); Serial.println(rc);
+CPXprint("*** Returning ***");
+    //Serial.print("RETURNED "); Serial.println(rc);
     }
   }
   
@@ -624,11 +626,11 @@ char* readBlock() {
     } else {
      int z = 0;
      while(client.connected() && !client.available()) {
-          sendPing();client.write("!",1);
+          sendPing();
      }
      if (!client.connected()) {
          Serial.println("Host has disconnected");
-delay(250);
+	 delay(250);
          return NULL;	
          //blink(errorPin,250,0);
      }
