@@ -283,11 +283,11 @@ void CPXloop() {
   char label[32];
   int v1, v2, pc;
   nJumps = 0;
-  if (!dataReady())
+  sendPing();
+  if (!dataReady()) 
 	return;
 	
   json = readBlock();
-  lastTime = millis();
   if (json == NULL) {
     Serial.println("Host disconnected, need to reconnect");
     //blink(errorPin,250,0);
@@ -413,6 +413,7 @@ int getEEPROM(int address) {
 void sendPing() {
   if (lastTime + 15000 < millis()) {
     if (interface != PROXY) {
+
       if(client.connected()) {
        client.write("!",1); 
        Serial.print("PING " ); Serial.println(pingCount++);

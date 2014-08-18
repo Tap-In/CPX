@@ -128,6 +128,7 @@ void CPXsetup() {
   char returns[512];
   injectKeyWords();
   readConfigFromProm();
+  Serial.println("++ Post Complete ++");
   lastTime = millis();
   doWiFi();
  
@@ -286,13 +287,13 @@ void CPXloop() {
 	return;
 	
   json = readBlock();
-  lastTime = millis();
   if (json == NULL) {
     Serial.println("Host disconnected, need to reconnect");
     //blink(errorPin,250,0);
     connectToProxy();
     return;
   }
+  lastTime = millis();
 
   // Serial.print("GOT COMMANDS: "); Serial.println(json);
 
@@ -412,6 +413,7 @@ int getEEPROM(int address) {
 void sendPing() {
   if (lastTime + 15000 < millis()) {
     if (interface != PROXY) {
+
       if(client.connected()) {
        client.write("!",1); 
        Serial.print("PING " ); Serial.println(pingCount++);
