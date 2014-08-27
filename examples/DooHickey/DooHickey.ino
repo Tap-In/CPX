@@ -17,8 +17,7 @@
 #include <List.h>
 #include <Config.h>
 
-// 69 is A15
-#define BUTTON_PIN 69
+#define BUTTON_PIN 22
 
 // DIGITAL
 #define GREEN  4

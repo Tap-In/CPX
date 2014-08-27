@@ -28,14 +28,13 @@
 #include "Hardware.h"
 #include "List.h"
 
-
 ////////////////////////////////////////////////////////////////
 int INTERFACE_TYPE  =       WIFI;
 
 // If proxy these will be ignored
-#define CONTROL_PLAN_ADDR    "arduinoproxy.tapinsystems.net"
+//#define CONTROL_PLAN_ADDR    "arduinoproxy.tapinsystems.net"
 //#define CONTROL_PLAN_ADDR   "192.168.1.15"
-//#define CONTROL_PLAN_ADDR   "192.168.1.3"
+#define CONTROL_PLAN_ADDR   "192.168.1.3"
 #define CONTROL_PLAN_PORT    6666
 ////////////////////////////////////////////////////////////////
 
@@ -283,7 +282,8 @@ void CPXloop() {
   char label[32];
   int v1, v2, pc;
   nJumps = 0;
-  if (!dataReady())
+  sendPing();
+  if (!dataReady()) 
 	return;
 	
   json = readBlock();
@@ -293,7 +293,6 @@ void CPXloop() {
     connectToProxy();
     return;
   }
-  lastTime = millis();
 
   // Serial.print("GOT COMMANDS: "); Serial.println(json);
 

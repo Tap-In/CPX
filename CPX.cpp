@@ -28,7 +28,6 @@
 #include "Hardware.h"
 #include "List.h"
 
-
 ////////////////////////////////////////////////////////////////
 int INTERFACE_TYPE  =       WIFI;
 
